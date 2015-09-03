@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ColorTime</string>
+    <string name="wallpaper_description">A simple background that changes based on the time.</string>
+</resources>
