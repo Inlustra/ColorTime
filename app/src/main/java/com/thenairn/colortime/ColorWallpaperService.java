@@ -47,7 +47,7 @@ public class ColorWallpaperService extends WallpaperService {
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
             if (visible) {
-                handler.postDelayed(wallpapered, 1000);
+                wallpapered.postDelayed();
             } else {
                 handler.removeCallbacks(wallpapered);
             }
@@ -74,8 +74,12 @@ public class ColorWallpaperService extends WallpaperService {
 
             @Override
             public void run() {
-                System.out.println("Called! "+sampler.getColor());
                 painter.paint(holder, sampler.getColor());
+                postDelayed();
+            }
+
+            public void postDelayed() {
+                handler.postDelayed(this, 1000);
             }
         }
     }
