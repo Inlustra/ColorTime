@@ -5,9 +5,12 @@ import android.service.wallpaper.WallpaperService;
 import android.view.SurfaceHolder;
 
 import com.thenairn.colortime.painter.ColorPainter;
-import com.thenairn.colortime.painter.SimpleColorPainter;
+import com.thenairn.colortime.painter.impl.GradientPainter;
+import com.thenairn.colortime.painter.impl.InterpolateColorPainter;
+import com.thenairn.colortime.painter.impl.InterpolateGradientPainter;
 import com.thenairn.colortime.sampler.ColorSampler;
 import com.thenairn.colortime.sampler.impl.HSVTimeSampler;
+import com.thenairn.colortime.sampler.impl.LightSampler;
 
 /**
  * Created by thomas on 03/09/15.
@@ -15,6 +18,8 @@ import com.thenairn.colortime.sampler.impl.HSVTimeSampler;
 public class ColorWallpaperService extends WallpaperService {
     @Override
     public WallpaperService.Engine onCreateEngine() {
+        Config.setContext(getApplicationContext());
+        Config.setService(this);
         return new ColorWallpaperEngine();
     }
 
@@ -27,7 +32,7 @@ public class ColorWallpaperService extends WallpaperService {
 
         public ColorWallpaperEngine() {
             handler = new Handler();
-            wallpapered.setPainter(new SimpleColorPainter());
+            wallpapered.setPainter(new GradientPainter());
             wallpapered.setSampler(new HSVTimeSampler());
         }
 
@@ -47,22 +52,23 @@ public class ColorWallpaperService extends WallpaperService {
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
             if (visible) {
-                wallpapered.postDelayed();
+                wallpapered.run();
             } else {
-                handler.removeCallbacks(wallpapered);
+                wallpapered.stop();
             }
         }
 
         @Override
         public void onSurfaceDestroyed(SurfaceHolder holder) {
             super.onSurfaceDestroyed(holder);
-            handler.removeCallbacks(wallpapered);
         }
 
         private class WallpaperRunnable implements Runnable {
 
             private ColorSampler sampler;
             private ColorPainter painter;
+            private volatile boolean registered = false;
+            private long lastrun = System.currentTimeMillis();
 
             public void setSampler(ColorSampler sampler) {
                 this.sampler = sampler;
@@ -74,13 +80,26 @@ public class ColorWallpaperService extends WallpaperService {
 
             @Override
             public void run() {
-                painter.paint(holder, sampler.getColor());
-                postDelayed();
+                long now = System.currentTimeMillis();
+                long delta = now - this.lastrun;
+                painter.paint(holder, sampler.getColor(delta), delta);
+                this.lastrun = now;
+                runDelayed();
             }
 
-            public void postDelayed() {
-                handler.postDelayed(this, 1000);
+            public void runDelayed() {
+                handler.postDelayed(this, 10);
+                registered = true;
             }
+
+            public void stop() {
+                if (registered) {
+                    handler.removeCallbacks(this);
+                    sampler.destroy();
+                }
+                registered = false;
+            }
+
         }
     }
 }

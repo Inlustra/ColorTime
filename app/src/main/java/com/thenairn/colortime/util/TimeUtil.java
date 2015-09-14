@@ -15,15 +15,22 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class TimeUtil {
 
-    public static double scale(double unscaledNumber, double minAllowed, double maxAllowed, double min, double max) {
-        return (maxAllowed - minAllowed) * (unscaledNumber - min) / (max - min) + minAllowed;
-    }
 
     public static double scaleTime(TimeUnit unit, double min, double max) {
-        return scale(current(unit), min, max, 0, unitMax(unit));
+        return MathUtil.scale(current(unit), min, max, 0, unitMax(unit));
     }
 
     public static double current(TimeUnit unit) {
+        TimeUnit a = unitAbove(unit);
+        long above = a.convert(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        long millis = TimeUnit.MILLISECONDS.convert(above, a);
+        if(unit == SECONDS) {
+            return (double)(System.currentTimeMillis() - millis) / 1000;
+        }
+        return unit.convert(System.currentTimeMillis() - millis, TimeUnit.MILLISECONDS);
+    }
+
+    public static double currentSeconds(TimeUnit unit) {
         TimeUnit a = unitAbove(unit);
         long above = a.convert(System.currentTimeMillis(), TimeUnit.MILLISECONDS);
         long millis = TimeUnit.MILLISECONDS.convert(above, a);
@@ -31,7 +38,7 @@ public class TimeUtil {
     }
 
     public static double scaleTime(TimeUnit unit, double min, double max, long millis) {
-        return scale(unit.convert(millis, TimeUnit.MILLISECONDS), min, max, 0, unitMax(unit));
+        return MathUtil.scale(unit.convert(millis, TimeUnit.MILLISECONDS), min, max, 0, unitMax(unit));
     }
 
     public static int unitMax(TimeUnit unit) {
