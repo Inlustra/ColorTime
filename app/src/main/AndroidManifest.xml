@@ -23,6 +23,11 @@
                 android:resource="@xml/colorwallpaper">
             </meta-data>
         </service>
+        <activity
+            android:name="com.thenairn.colortime.settings.ColorSettings"
+            android:label="Settings"
+            android:exported="true" >
+        </activity>
     </application>
 
 </manifest>

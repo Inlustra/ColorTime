@@ -4,7 +4,7 @@ import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
-import com.thenairn.colortime.settingscreator.SettingsConfigurable;
+import com.thenairn.colortime.settingscreator.annotation.SettingsConfigurable;
 import com.thenairn.colortime.util.MathUtil;
 import com.thenairn.colortime.util.TimeUtil;
 
@@ -14,9 +14,6 @@ import java.util.concurrent.TimeUnit;
  * Created by Tom on 04/09/2015.
  */
 public class LightSampler extends SensorSampler {
-
-    @SettingsConfigurable
-    private boolean enabled;
 
     @Override
     protected int getSensorType() {

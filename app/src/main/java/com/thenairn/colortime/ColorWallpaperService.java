@@ -11,11 +11,21 @@ import com.thenairn.colortime.painter.impl.InterpolateGradientPainter;
 import com.thenairn.colortime.sampler.ColorSampler;
 import com.thenairn.colortime.sampler.impl.HSVTimeSampler;
 import com.thenairn.colortime.sampler.impl.LightSampler;
+import com.thenairn.colortime.settingscreator.annotation.SettingsConfigurable;
+import com.thenairn.colortime.settingscreator.annotation.SettingsHeader;
 
 /**
  * Created by thomas on 03/09/15.
  */
+@SettingsHeader(titleId = "settings_title")
 public class ColorWallpaperService extends WallpaperService {
+
+    @SettingsConfigurable(titleId = "settings_title", key = "Disabling this will enable light sensor")
+    private static boolean time = true;
+    @SettingsConfigurable(titleId = "settings_title", key = "Disabling this will enable simple painter")
+    private static boolean gradient = false;
+
+
     @Override
     public WallpaperService.Engine onCreateEngine() {
         Config.setContext(getApplicationContext());

@@ -2,4 +2,5 @@
 <wallpaper xmlns:android="http://schemas.android.com/apk/res/android"
     android:label="ColorTime"
     android:description="@string/wallpaper_description"
-    android:thumbnail="@drawable/icon"/>
+    android:thumbnail="@drawable/icon"
+    android:settingsActivity="com.thenairn.colortime.settings.ColorSettings"/>
