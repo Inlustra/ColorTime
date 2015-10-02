@@ -1,7 +1,10 @@
 package com.thenairn.colortime.settingscreator.view;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -10,11 +13,23 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
+import com.google.common.reflect.Reflection;
 import com.thenairn.colortime.R;
 import com.thenairn.colortime.settingscreator.entity.SettingsCategory;
 import com.thenairn.colortime.settingscreator.entity.SettingsPreference;
 import com.thenairn.colortime.settingscreator.entity.SettingsSection;
+import com.thenairn.colortime.util.ReflectionsUtil;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by thomas on 15/09/15.
@@ -34,18 +49,26 @@ public class SettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
         screen = getPreferenceManager().createPreferenceScreen(getActivity());
         shared = PreferenceManager.getDefaultSharedPreferences(screen.getContext());
-        setPreferenceScreen(screen);
         for (SettingsCategory cat : section.getCategories()) {
             screen.addPreference(createCategory(cat));
         }
+        setPreferenceScreen(screen);
     }
 
     public PreferenceCategory createCategory(SettingsCategory settings) {
         Log.e("SettingsFragment", "Adding Category!");
-        PreferenceCategory category = new PreferenceCategory(screen.getContext());
+        PreferenceCategory category = new PreferenceCategory(getActivity());
+        try {
+            Field preferenceManager = ReflectionsUtil.getField(category.getClass(), "mPreferenceManager");
+            preferenceManager.setAccessible(true);
+            preferenceManager.set(category, getPreferenceManager());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         category.setTitle(settings.getTitle());
         for (SettingsPreference pref : settings.getPreferences()) {
-            category.addPreference(createPreference(pref));
+            Preference preference = createPreference(pref);
+            category.addPreference(preference);
         }
         return category;
     }
@@ -57,7 +80,7 @@ public class SettingsFragment extends PreferenceFragment {
                 clazz.isAssignableFrom(boolean.class)) {
             return createCheckbox(pref);
         }
-        Log.e("CALLED","SAFAFFASFSAFFAA");
+        Log.e("CALLED", "SAFAFFASFSAFFAA");
         return null;
     }
 
@@ -104,4 +127,21 @@ public class SettingsFragment extends PreferenceFragment {
             return true;
         }
     }
+
+    private PreferenceManager prefInstance;
+
+    public PreferenceManager getPreferenceManager() {
+        if (prefInstance == null) {
+            try {
+                prefInstance = (PreferenceManager) ReflectionsUtil.getField(this.getClass(),
+                        "mPreferenceManager").get(this);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return prefInstance;
+    }
+
+
+
 }

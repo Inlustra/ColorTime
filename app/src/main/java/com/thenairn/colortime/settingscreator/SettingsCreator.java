@@ -85,6 +85,7 @@ public class SettingsCreator {
 
 
     private SettingsPreference createPreference(Field field) {
+        field.setAccessible(true);
         SettingsConfigurable configurable = field.getAnnotation(SettingsConfigurable.class);
         String title = builder.parseOrDefault(configurable.titleId(), configurable.title());
         String summary = builder.parseOrDefault(configurable.summaryId(), configurable.summary());

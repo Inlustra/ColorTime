@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
@@ -60,7 +61,6 @@ public abstract class AutoSettingsActivity extends PreferenceActivity {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        mPrefsContainer = (ViewGroup) findViewById(prefsRes);
     }
 
     protected abstract String getPackage();
@@ -89,8 +89,6 @@ public abstract class AutoSettingsActivity extends PreferenceActivity {
     public void onHeaderClick(@NonNull Header header, int position) {
         SettingsFragment fragment = getCreator().getFragment(header.extras.getInt(HEADER_KEY));
         switchToHeader(header, fragment);
-        findViewById(headersRes).setVisibility(View.GONE);
-        mPrefsContainer.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -137,7 +135,7 @@ public abstract class AutoSettingsActivity extends PreferenceActivity {
                 FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        transaction.replace(prefsRes, fragment);
+        transaction.replace(headersRes, fragment);
         transaction.commitAllowingStateLoss();
     }
 
