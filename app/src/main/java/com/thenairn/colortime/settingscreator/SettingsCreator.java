@@ -1,31 +1,23 @@
 package com.thenairn.colortime.settingscreator;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.thenairn.colortime.settingscreator.annotation.SettingsConfigurable;
+import com.thenairn.colortime.settingscreator.annotation.CheckboxField;
+import com.thenairn.colortime.settingscreator.annotation.ListField;
 import com.thenairn.colortime.settingscreator.annotation.SettingsHeader;
 import com.thenairn.colortime.settingscreator.classloader.ClassScanner;
 import com.thenairn.colortime.settingscreator.entity.SettingsPreference;
 import com.thenairn.colortime.settingscreator.entity.SettingsSection;
 import com.thenairn.colortime.settingscreator.view.SettingsFragment;
 
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
-
 import static org.reflections.ReflectionUtils.*;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Collection;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 /**
@@ -75,22 +67,38 @@ public class SettingsCreator {
 
     private void handleClass(int key, Class clazz) {
         SettingsSection section = createSection(clazz);
-        Set<Field> fields = getAllFields(clazz, withAnnotation(SettingsConfigurable.class));
-        Log.e("SettingsCreator", "Listed " + fields.size() + " fields for " + clazz.getSimpleName());
-        for (Field field : fields) {
-            section.add(createPreference(field));
-        }
+        handleFields(section, clazz, CheckboxField.class);
+        handleFields(section, clazz, ListField.class);
         fragments.put(key, SettingsFragment.fromSection(section));
     }
 
+    private void handleFields(SettingsSection section, Class scan, Class<? extends Annotation> annotation) {
+        Set<Field> fields = getAllFields(scan, withAnnotation(annotation));
+        for (Field field : fields) {
+            section.add(createPreference(annotation, field));
+        }
+    }
 
-    private SettingsPreference createPreference(Field field) {
+    private SettingsPreference createPreference(Class<? extends Annotation> annotation, Field field) {
         field.setAccessible(true);
-        SettingsConfigurable configurable = field.getAnnotation(SettingsConfigurable.class);
-        String title = builder.parseOrDefault(configurable.titleId(), configurable.title());
-        String summary = builder.parseOrDefault(configurable.summaryId(), configurable.summary());
-        String category = builder.parseOrDefault(configurable.categoryId(), configurable.category());
-        return new SettingsPreference(field, configurable.key(), title, summary, category);
+        Object configurable = field.getAnnotation(annotation);
+        try {
+            String title = getString(configurable, "titleId", "title");
+            String summary = getString(configurable, "summaryId", "summary");
+            String category = getString(configurable, "categoryId", "category");
+            String key = (String) configurable.getClass().getMethod("key").invoke(configurable);
+            return new SettingsPreference(annotation, field, key, title, summary, category);
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String getString(Object object, String field1, String field2) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        Class clazz = object.getClass();
+        String titleId = (String) clazz.getMethod(field1).invoke(object);
+        String titleContent = (String) clazz.getMethod(field2).invoke(object);
+        return builder.parseOrDefault(titleId, titleContent);
     }
 
     private SettingsSection createSection(Class clazz) {

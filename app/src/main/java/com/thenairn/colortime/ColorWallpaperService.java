@@ -6,12 +6,10 @@ import android.view.SurfaceHolder;
 
 import com.thenairn.colortime.painter.ColorPainter;
 import com.thenairn.colortime.painter.impl.GradientPainter;
-import com.thenairn.colortime.painter.impl.InterpolateColorPainter;
-import com.thenairn.colortime.painter.impl.InterpolateGradientPainter;
 import com.thenairn.colortime.sampler.ColorSampler;
 import com.thenairn.colortime.sampler.impl.HSVTimeSampler;
-import com.thenairn.colortime.sampler.impl.LightSampler;
-import com.thenairn.colortime.settingscreator.annotation.SettingsConfigurable;
+import com.thenairn.colortime.settingscreator.annotation.CheckboxField;
+import com.thenairn.colortime.settingscreator.annotation.ListField;
 import com.thenairn.colortime.settingscreator.annotation.SettingsHeader;
 
 /**
@@ -20,9 +18,9 @@ import com.thenairn.colortime.settingscreator.annotation.SettingsHeader;
 @SettingsHeader(titleId = "settings_title")
 public class ColorWallpaperService extends WallpaperService {
 
-    @SettingsConfigurable(titleId = "settings_title", key = "Disabling this will enable light sensor")
+    @CheckboxField(title = "Something else", key = "Disabling this will enable light sensor")
     private static boolean time = true;
-    @SettingsConfigurable(titleId = "settings_title", key = "Disabling this will enable simple painter")
+    @CheckboxField(title = "settings_title", key = "Disabling this will enable simple painter")
     private static boolean gradient = false;
 
 

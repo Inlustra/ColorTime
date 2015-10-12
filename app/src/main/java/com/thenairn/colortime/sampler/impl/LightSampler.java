@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
-import com.thenairn.colortime.settingscreator.annotation.SettingsConfigurable;
 import com.thenairn.colortime.util.MathUtil;
 import com.thenairn.colortime.util.TimeUtil;
 

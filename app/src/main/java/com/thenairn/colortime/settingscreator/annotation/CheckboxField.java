@@ -1,13 +1,9 @@
 package com.thenairn.colortime.settingscreator.annotation;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 /**
- * Created by Tom on 09/09/2015.
+ * Created by thomas on 12/10/15.
  */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface SettingsConfigurable {
+public @interface CheckboxField {
     String key();
 
     String title() default "";
@@ -21,5 +17,4 @@ public @interface SettingsConfigurable {
     String category() default "";
 
     String categoryId() default "";
-
 }
