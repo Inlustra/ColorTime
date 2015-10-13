@@ -1,0 +1,2 @@
+include ':ReflectiveSettings'
+project(':ReflectiveSettings').projectDir = new File('../ReflectiveSettings')
