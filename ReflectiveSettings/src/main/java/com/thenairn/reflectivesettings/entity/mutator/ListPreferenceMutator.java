@@ -54,13 +54,14 @@ public class ListPreferenceMutator extends PreferenceMutator<ListField, ListPref
 
     private void populateFromEnum(ListPreference preference, SettingsPreference<ListField> settings) {
         Enum[] enums = getEnums(settings);
-        List<CharSequence> strings = new LinkedList<>();
-        for (Enum e : enums) {
-            strings.add(e.toString());
+        CharSequence[] values = new CharSequence[enums.length];
+        CharSequence[] strings = new CharSequence[enums.length];
+        for (int i = 0; i < enums.length; i++) {
+            strings[i] = enums[i].toString();
+            values[i] = enums[i].name();
         }
-        CharSequence[] array = strings.toArray(new CharSequence[strings.size()]);
-        preference.setEntries(array);
-        preference.setEntryValues(array);
+        preference.setEntries(strings);
+        preference.setEntryValues(values);
     }
 
     private static Enum[] getEnums(SettingsPreference preference) {
@@ -84,7 +85,7 @@ public class ListPreferenceMutator extends PreferenceMutator<ListField, ListPref
         public boolean onPreferenceChange(Preference preference, Object newValue) {
             try {
                 for (Enum enumeration : enums) {
-                    if (enumeration.toString().equals(newValue)) {
+                    if (enumeration.name().equals(newValue)) {
                         pref.getField().set(null, enumeration);
                     }
                 }

@@ -48,6 +48,7 @@ public abstract class ReflectiveSettingsActivity extends PreferenceActivity {
             field = clasz.getDeclaredField("headers");
             field.setAccessible(true);
             headersRes = (int) field.get(null);
+            mPrefsContainer = (ViewGroup) findViewById(prefsRes);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (NoSuchFieldException e) {
@@ -87,11 +88,6 @@ public abstract class ReflectiveSettingsActivity extends PreferenceActivity {
 
     @Override
     public void onBackPressed() {
-        if (mPrefsContainer.getVisibility() == View.VISIBLE) {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.setClass(this, getClass());
-            startActivity(intent);
-        }
         super.onBackPressed();
     }
 
@@ -124,11 +120,10 @@ public abstract class ReflectiveSettingsActivity extends PreferenceActivity {
     private static final String BACK_STACK_PREFS = ":android:prefs";
 
     private void switchToHeaderInner(Fragment fragment) {
-        getFragmentManager().popBackStack(BACK_STACK_PREFS,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         transaction.replace(headersRes, fragment);
+        transaction.addToBackStack(BACK_STACK_PREFS);
         transaction.commitAllowingStateLoss();
     }
 
