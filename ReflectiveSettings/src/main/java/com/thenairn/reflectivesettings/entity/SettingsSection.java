@@ -11,16 +11,18 @@ public class SettingsSection {
 
     private String title;
     private String summary;
+    private boolean top;
 
     private int icon;
 
     private Map<String, SettingsCategory> categories;
 
-    public SettingsSection(String title, String summary, int icon) {
+    public SettingsSection(String title, String summary, int icon, boolean top) {
         this.title = title;
         this.summary = summary;
         this.icon = icon;
         this.categories = new HashMap<>();
+        this.top = top;
     }
 
     public void add(SettingsPreference preference) {
@@ -56,5 +58,9 @@ public class SettingsSection {
 
     public Collection<SettingsCategory> getCategories() {
         return categories.values();
+    }
+
+    public boolean isTop() {
+        return top;
     }
 }

@@ -10,10 +10,12 @@ import android.view.SurfaceHolder;
 
 import com.thenairn.colortime.painter.ColorPainter;
 import com.thenairn.colortime.util.color.RGB;
+import com.thenairn.reflectivesettings.annotation.SettingsHeader;
 
 /**
  * Created by Tom on 09/09/2015.
  */
+@SettingsHeader(title = "Gradient Painter")
 public class GradientPainter implements ColorPainter {
 
     private int color = 0x0;

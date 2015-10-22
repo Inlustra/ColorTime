@@ -8,10 +8,12 @@ import android.view.SurfaceHolder;
 
 import com.thenairn.colortime.painter.ColorPainter;
 import com.thenairn.colortime.util.ColorInterpolator;
+import com.thenairn.reflectivesettings.annotation.SettingsHeader;
 
 /**
  * Created by thomas on 03/09/15.
  */
+@SettingsHeader(title = "Interpolate Color Painter")
 public class InterpolateColorPainter implements ColorPainter {
 
     private int color = 0x0;

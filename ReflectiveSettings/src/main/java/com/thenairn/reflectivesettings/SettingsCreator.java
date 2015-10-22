@@ -9,15 +9,17 @@ import com.thenairn.reflectivesettings.classloader.ClassScanner;
 import com.thenairn.reflectivesettings.entity.SettingsPreference;
 import com.thenairn.reflectivesettings.entity.SettingsSection;
 import com.thenairn.reflectivesettings.util.Mutators;
-import com.thenairn.reflectivesettings.view.SettingsFragment;
-
-import static org.reflections.ReflectionUtils.*;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+
+import static org.reflections.ReflectionUtils.getAllFields;
+import static org.reflections.ReflectionUtils.withAnnotation;
 
 /**
  * Created by Tom on 09/09/2015.
@@ -26,12 +28,14 @@ public class SettingsCreator {
 
     private Context context;
     private String packages;
-    private SparseArray<SettingsFragment> fragments;
+    private SparseArray<SettingsSection> sections;
+    private List<SettingsSection> mainPreferences;
     private SettingsBuilder builder;
 
     public SettingsCreator(final String packages, Context context) {
         this.builder = new SettingsBuilder(context);
-        this.fragments = new SparseArray<>();
+        this.sections = new SparseArray<>();
+        this.mainPreferences = new ArrayList<>();
         this.context = context;
         this.packages = packages;
         Log.e("SettingsCreator", "Starting reflections at package: " + packages);
@@ -56,7 +60,6 @@ public class SettingsCreator {
                 @Override
                 protected void onScanResult(Class clazz) {
                     handleClass(key++, clazz);
-
                 }
             }.scan();
         } catch (IOException | ClassNotFoundException | NoSuchMethodException e) {
@@ -69,7 +72,11 @@ public class SettingsCreator {
         for (Class annotation : Mutators.getTypes()) {
             handleFields(section, clazz, annotation);
         }
-        fragments.put(key, SettingsFragment.fromSection(section));
+        if (section.isTop()) {
+            mainPreferences.add(section);
+            return;
+        }
+        sections.put(key, section);
     }
 
     private void handleFields(SettingsSection section, Class scan, Class<? extends Annotation> annotation) {
@@ -106,14 +113,18 @@ public class SettingsCreator {
         String title = builder.parseOrDefault(header.titleId(), header.title());
         String summary = builder.parseOrDefault(header.summaryId(), header.summary());
         int icon = builder.parseDrawableOrDefault(header.iconId(), -1);
-        return new SettingsSection(title, summary, icon);
+        return new SettingsSection(title, summary, icon, header.headerTop());
     }
 
-    public SparseArray<SettingsFragment> getFragments() {
-        return fragments;
+    public SparseArray<SettingsSection> getSections() {
+        return sections;
     }
 
-    public SettingsFragment getFragment(int i) {
-        return fragments.get(i);
+    public List<SettingsSection> getMainPreferences() {
+        return mainPreferences;
+    }
+
+    public SettingsSection getSection(int i) {
+        return sections.get(i);
     }
 }

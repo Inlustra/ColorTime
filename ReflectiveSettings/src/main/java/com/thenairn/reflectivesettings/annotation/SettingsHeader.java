@@ -17,4 +17,6 @@ public @interface SettingsHeader {
     String summary() default "";
 
     String summaryId() default "";
+
+    boolean headerTop() default false;
 }

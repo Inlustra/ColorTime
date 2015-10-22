@@ -15,13 +15,8 @@ import com.thenairn.reflectivesettings.annotation.SettingsHeader;
 /**
  * Created by thomas on 03/09/15.
  */
-@SettingsHeader(titleId = "settings_title")
+@SettingsHeader(title = "Color Types")
 public class ColorWallpaperService extends WallpaperService {
-
-    @CheckboxField(title = "Something else", key = "Disabling this will enable light sensor")
-    private static boolean time = true;
-    @CheckboxField(title = "settings_title", key = "Disabling this will enable simple painter")
-    private static boolean gradient = false;
 
     private static enum Painter {
         Gradient, Interpolate

@@ -37,6 +37,7 @@ public class SettingsFragment extends PreferenceFragment {
         for (SettingsCategory cat : section.getCategories()) {
             screen.addPreference(createCategory(cat));
         }
+
         setPreferenceScreen(screen);
     }
 

@@ -15,19 +15,16 @@
             android:label="ColorTime"
             android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService" >
-                </action>
+                <action android:name="android.service.wallpaper.WallpaperService" />
             </intent-filter>
             <meta-data
                 android:name="android.service.wallpaper"
-                android:resource="@xml/colorwallpaper">
-            </meta-data>
+                android:resource="@xml/colorwallpaper" />
         </service>
         <activity
             android:name="com.thenairn.colortime.settings.ColorSettings"
-            android:label="Settings"
-            android:exported="true" >
-        </activity>
+            android:exported="true"
+            android:label="Settings"/>
     </application>
 
 </manifest>
