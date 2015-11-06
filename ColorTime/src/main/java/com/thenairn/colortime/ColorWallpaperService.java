@@ -1,37 +1,61 @@
 package com.thenairn.colortime;
 
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.service.wallpaper.WallpaperService;
 import android.view.SurfaceHolder;
 
 import com.thenairn.colortime.painter.ColorPainter;
-import com.thenairn.colortime.painter.impl.GradientPainter;
+import com.thenairn.colortime.painter.PainterType;
 import com.thenairn.colortime.sampler.ColorSampler;
-import com.thenairn.colortime.sampler.impl.HSVTimeSampler;
-import com.thenairn.reflectivesettings.annotation.CheckboxField;
-import com.thenairn.reflectivesettings.annotation.ListField;
+import com.thenairn.colortime.sampler.SamplerType;
+import com.thenairn.reflectivesettings.SettingsInitializer;
+import com.thenairn.reflectivesettings.annotation.SettingsField;
 import com.thenairn.reflectivesettings.annotation.SettingsHeader;
 
 /**
  * Created by thomas on 03/09/15.
  */
-@SettingsHeader(title = "Color Types")
-public class ColorWallpaperService extends WallpaperService {
+@SettingsHeader(headerTop = true)
+public class ColorWallpaperService extends WallpaperService implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static enum Painter {
-        Gradient, Interpolate
-    }
+    private ColorWallpaperEngine engine;
 
-    @ListField(title = "Painter to choose from", key = "painter")
-    private static Painter painter = Painter.Gradient;
-
+    @SettingsField(title = "Choose Painter", summary = "Defines how to paint the colors", key = "painter")
+    private static PainterType painter = PainterType.Gradient;
+    @SettingsField(title = "Choose Sampler", summary = "Defines how the painter gets its colors", key = "sampler")
+    private static SamplerType sampler = SamplerType.HSVTimeSampler;
 
     @Override
     public WallpaperService.Engine onCreateEngine() {
+        SettingsInitializer.forPackage("com.thenairn.colortime", this);
         Config.setContext(getApplicationContext());
         Config.setService(this);
-        return new ColorWallpaperEngine();
+        return engine = new ColorWallpaperEngine();
     }
+
+    private SharedPreferences mPreferences;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        mPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mPreferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (engine == null) return;
+        engine.reset();
+    }
+
 
     public class ColorWallpaperEngine extends WallpaperService.Engine {
 
@@ -42,8 +66,12 @@ public class ColorWallpaperService extends WallpaperService {
 
         public ColorWallpaperEngine() {
             handler = new Handler();
-            wallpapered.setPainter(new GradientPainter());
-            wallpapered.setSampler(new HSVTimeSampler());
+            reset();
+        }
+
+        private void reset() {
+            wallpapered.setPainter(painter.getPainter());
+            wallpapered.setSampler(sampler.getSampler());
         }
 
         @Override

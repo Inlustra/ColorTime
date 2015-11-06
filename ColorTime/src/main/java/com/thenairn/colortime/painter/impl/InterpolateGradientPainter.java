@@ -1,7 +1,6 @@
 package com.thenairn.colortime.painter.impl;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
@@ -21,6 +20,7 @@ public class InterpolateGradientPainter implements ColorPainter {
     private int color = 0x0;
     private Handler handler = new Handler(Looper.getMainLooper());
     private ColorInterpolator interp;
+
     @Override
     public void paint(final SurfaceHolder holder, final int color, long delta) {
         final int from = this.color;

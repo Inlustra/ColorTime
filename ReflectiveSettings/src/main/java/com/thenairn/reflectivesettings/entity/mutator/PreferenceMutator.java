@@ -4,21 +4,20 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.Preference;
 
-import com.thenairn.reflectivesettings.annotation.ListField;
 import com.thenairn.reflectivesettings.entity.SettingsPreference;
 
-import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 
 /**
  * Created by thomas on 13/10/15.
  */
-public abstract class PreferenceMutator<A extends Annotation, P extends Preference> {
+public abstract class PreferenceMutator<P extends Preference> {
 
-    public abstract Class<A> getAnnotationClass();
+    protected abstract P getPreference(Context context);
 
-    protected abstract P getType(Context context);
+    public abstract Class[] getFieldTypes();
 
-    protected void setDefaults(P preference, SettingsPreference<A> settings) {
+    protected void setDefaults(P preference, SettingsPreference settings) {
         preference.setKey(settings.getKey());
         preference.setTitle(settings.getTitle());
         preference.setSummary(settings.getSummary());
@@ -29,9 +28,9 @@ public abstract class PreferenceMutator<A extends Annotation, P extends Preferen
 
     public P get(Context context,
                  SharedPreferences sharedPreferences,
-                 SettingsPreference<A> settingsPreference) {
-        P pref = getType(context);
-        initialize(pref, settingsPreference, sharedPreferences);
+                 SettingsPreference settingsPreference) {
+        P pref = getPreference(context);
+        initPreference(pref, settingsPreference, sharedPreferences);
         setDefaults(pref, settingsPreference);
         return pref;
     }
@@ -40,7 +39,15 @@ public abstract class PreferenceMutator<A extends Annotation, P extends Preferen
         return new OnChange(pref);
     }
 
-    protected abstract void initialize(P preference, SettingsPreference<A> settings, SharedPreferences shared);
+    public void initField(Field field, String key, SharedPreferences shared) {
+        try {
+            field.set(null, shared.getString(key, (String) field.get(null)));
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected abstract void initPreference(P preference, SettingsPreference settings, SharedPreferences shared);
 
 
     private static class OnChange implements Preference.OnPreferenceChangeListener {

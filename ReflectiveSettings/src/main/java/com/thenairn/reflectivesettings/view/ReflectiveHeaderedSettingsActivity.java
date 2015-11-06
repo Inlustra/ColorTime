@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.support.annotation.NonNull;
 
-import com.thenairn.reflectivesettings.SettingsCreator;
+import com.thenairn.reflectivesettings.SettingsInitializer;
 import com.thenairn.reflectivesettings.entity.SettingsSection;
 
 import java.lang.reflect.Field;
@@ -19,11 +19,11 @@ import java.util.List;
 public abstract class ReflectiveHeaderedSettingsActivity extends PreferenceActivity {
 
     private static final String HEADER_KEY = "SETTINGS_FRAGMENT";
-    private SettingsCreator creator;
+    private SettingsInitializer creator;
 
-    private SettingsCreator getCreator() {
+    private SettingsInitializer getCreator() {
         if (creator == null) {
-            creator = new SettingsCreator(getPackage(), getApplicationContext());
+            creator = SettingsInitializer.forPackage(getPackage(), getApplicationContext());
         }
         return creator;
     }

@@ -1,9 +1,11 @@
 package com.thenairn.reflectivesettings;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.thenairn.reflectivesettings.annotation.SettingsField;
 import com.thenairn.reflectivesettings.annotation.SettingsHeader;
 import com.thenairn.reflectivesettings.classloader.ClassScanner;
 import com.thenairn.reflectivesettings.entity.SettingsPreference;
@@ -11,11 +13,13 @@ import com.thenairn.reflectivesettings.entity.SettingsSection;
 import com.thenairn.reflectivesettings.util.Mutators;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.reflections.ReflectionUtils.getAllFields;
@@ -24,28 +28,43 @@ import static org.reflections.ReflectionUtils.withAnnotation;
 /**
  * Created by Tom on 09/09/2015.
  */
-public class SettingsCreator {
+public class SettingsInitializer {
 
+    private static final Map<String, SettingsInitializer> cache = new HashMap<>();
+
+    public static SettingsInitializer forPackage(String packages, Context context) {
+        SettingsInitializer initializer = cache.get(packages);
+        if (initializer == null)
+            cache.put(packages, initializer = new SettingsInitializer(packages, context));
+        return initializer;
+    }
+
+    private SharedPreferences sharedPreferences;
     private Context context;
     private String packages;
     private SparseArray<SettingsSection> sections;
     private List<SettingsSection> mainPreferences;
     private SettingsBuilder builder;
+    private boolean isDone = false;
 
-    public SettingsCreator(final String packages, Context context) {
+    private SettingsInitializer(final String packages, Context context) {
+        this.sharedPreferences = context.getSharedPreferences(packages + "_preferences", Context.MODE_PRIVATE);
         this.builder = new SettingsBuilder(context);
         this.sections = new SparseArray<>();
         this.mainPreferences = new ArrayList<>();
         this.context = context;
         this.packages = packages;
-        Log.e("SettingsCreator", "Starting reflections at package: " + packages);
         init();
+        Log.d("SettingsCreator", "Starting reflections at package: " + packages);
     }
 
     private void init() {
+        if (isDone) {
+            Log.d("SettingsInitializer", "Settings Already Cached");
+            return;
+        }
         try {
             new ClassScanner(context) {
-                private int key = 0;
 
                 @Override
                 protected boolean isTargetClassName(String className) {
@@ -59,46 +78,63 @@ public class SettingsCreator {
 
                 @Override
                 protected void onScanResult(Class clazz) {
-                    handleClass(key++, clazz);
+                    handleClass(clazz);
                 }
             }.scan();
         } catch (IOException | ClassNotFoundException | NoSuchMethodException e) {
             e.printStackTrace();
         }
+        isDone = true;
     }
 
-    private void handleClass(int key, Class clazz) {
+    private int key = 0;
+
+    private void handleClass(Class clazz) {
         SettingsSection section = createSection(clazz);
-        for (Class annotation : Mutators.getTypes()) {
-            handleFields(section, clazz, annotation);
-        }
+        handleFields(section, clazz);
         if (section.isTop()) {
             mainPreferences.add(section);
             return;
         }
-        sections.put(key, section);
+        sections.put(key++, section);
     }
 
-    private void handleFields(SettingsSection section, Class scan, Class<? extends Annotation> annotation) {
-        Set<Field> fields = getAllFields(scan, withAnnotation(annotation));
+
+    private void handleFields(SettingsSection section, Class scan) {
+        Set<Field> fields = getAllFields(scan, withAnnotation(SettingsField.class));
         for (Field field : fields) {
-            section.add(createPreference(annotation, field));
+            initField(field);
+            section.add(createPreference(field));
         }
     }
 
-    private SettingsPreference createPreference(Class<? extends Annotation> annotation, Field field) {
+    private SettingsPreference createPreference(Field field) {
         field.setAccessible(true);
-        Object configurable = field.getAnnotation(annotation);
+        if (!Modifier.isStatic(field.getModifiers())) {
+            throw new IllegalStateException("Field must be declared static: " + field.getName());
+        }
+        Object configurable = field.getAnnotation(SettingsField.class);
         try {
             String title = getString(configurable, "titleId", "title");
             String summary = getString(configurable, "summaryId", "summary");
             String category = getString(configurable, "categoryId", "category");
             String key = (String) configurable.getClass().getMethod("key").invoke(configurable);
-            return new SettingsPreference(annotation, field, key, title, summary, category);
+            return new SettingsPreference(field, key, title, summary, category);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    private void initField(Field field) {
+        field.setAccessible(true);
+        if (!Modifier.isStatic(field.getModifiers())) {
+            throw new IllegalStateException("Field must be declared static: " + field.getName());
+        }
+        Log.e("SettingsInitialzier", "Set field: " + field.getName());
+        SettingsField configurable = field.getAnnotation(SettingsField.class);
+        Mutators.getMutator(configurable.type(), field.getType()).initField(field, configurable.key(), sharedPreferences);
     }
 
     private String getString(Object object, String field1, String field2) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
@@ -112,8 +148,9 @@ public class SettingsCreator {
         SettingsHeader header = (SettingsHeader) clazz.getAnnotation(SettingsHeader.class);
         String title = builder.parseOrDefault(header.titleId(), header.title());
         String summary = builder.parseOrDefault(header.summaryId(), header.summary());
+        String category = builder.parseOrDefault(header.categoryId(), header.category());
         int icon = builder.parseDrawableOrDefault(header.iconId(), -1);
-        return new SettingsSection(title, summary, icon, header.headerTop());
+        return new SettingsSection(title, summary, icon, header.headerTop(), category);
     }
 
     public SparseArray<SettingsSection> getSections() {

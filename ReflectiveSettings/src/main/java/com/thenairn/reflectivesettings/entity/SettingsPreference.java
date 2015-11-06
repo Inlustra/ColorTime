@@ -1,14 +1,16 @@
 package com.thenairn.reflectivesettings.entity;
 
-import java.lang.annotation.Annotation;
+import com.thenairn.reflectivesettings.annotation.SettingsField;
+import com.thenairn.reflectivesettings.entity.mutator.PreferenceMutator;
+import com.thenairn.reflectivesettings.util.Mutators;
+
 import java.lang.reflect.Field;
 
 /**
  * Created by thomas on 15/09/15.
  */
-public class SettingsPreference<T extends Annotation> {
+public class SettingsPreference {
 
-    private Class<T> annotationType;
     private final Field field;
     private final String key;
     private final String title;
@@ -16,18 +18,17 @@ public class SettingsPreference<T extends Annotation> {
     private String summary;
     private String category;
 
-    public SettingsPreference(Class<T> annotationType,
-                              Field field,
-                              String key,
-                              String title,
-                              String summary,
-                              String category) {
-        this.annotationType = annotationType;
+    public SettingsPreference(
+            Field field,
+            String key,
+            String title,
+            String summary,
+            String category) {
         this.field = field;
         this.key = key;
         this.title = title;
-        this.summary = summary;
-        this.category = category;
+        this.summary = Mutators.trimToNull(summary);
+        this.category = Mutators.trimToNull(category);
     }
 
     public Field getField() {
@@ -50,11 +51,11 @@ public class SettingsPreference<T extends Annotation> {
         return category;
     }
 
-    public Class<T> getAnnotationType() {
-        return annotationType;
+    public Class<PreferenceMutator> getMutator() {
+        return getAnnotation().type();
     }
 
-    public T getAnnotation() {
-        return field.getAnnotation(annotationType);
+    public SettingsField getAnnotation() {
+        return field.getAnnotation(SettingsField.class);
     }
 }

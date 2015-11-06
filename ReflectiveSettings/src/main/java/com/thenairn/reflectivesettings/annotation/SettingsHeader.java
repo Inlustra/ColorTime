@@ -12,6 +12,10 @@ public @interface SettingsHeader {
 
     String titleId() default "";
 
+    String category() default "";
+
+    String categoryId() default "";
+
     String iconId() default "";
 
     String summary() default "";

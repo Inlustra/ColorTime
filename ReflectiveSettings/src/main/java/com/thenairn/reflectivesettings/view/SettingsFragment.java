@@ -52,7 +52,7 @@ public class SettingsFragment extends PreferenceFragment {
         }
         category.setTitle(settings.getTitle());
         for (SettingsPreference pref : settings.getPreferences()) {
-            PreferenceMutator mutator = Mutators.get(pref.getAnnotationType());
+            PreferenceMutator mutator = Mutators.getFromFieldType(pref.getMutator());
             category.addPreference(mutator.get(screen.getContext(), shared, pref));
         }
         return category;

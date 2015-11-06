@@ -1,5 +1,7 @@
 package com.thenairn.reflectivesettings.entity;
 
+import com.thenairn.reflectivesettings.util.Mutators;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -13,7 +15,7 @@ public class SettingsCategory {
     private Set<SettingsPreference> preferences;
 
     public SettingsCategory(String title) {
-        this.title = title;
+        this.title = Mutators.trimToNull(title);
         this.preferences = new LinkedHashSet<>();
     }
 
