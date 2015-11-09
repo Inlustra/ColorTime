@@ -12,15 +12,22 @@ import com.thenairn.reflectivesettings.entity.SettingsPreference;
 import com.thenairn.reflectivesettings.entity.SettingsSection;
 import com.thenairn.reflectivesettings.util.Mutators;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import dalvik.system.DexFile;
 
 import static org.reflections.ReflectionUtils.getAllFields;
 import static org.reflections.ReflectionUtils.withAnnotation;
@@ -101,11 +108,21 @@ public class SettingsInitializer {
 
 
     private void handleFields(SettingsSection section, Class scan) {
-        Set<Field> fields = getAllFields(scan, withAnnotation(SettingsField.class));
+        Set<Field> fields = getFields(scan, SettingsField.class);
         for (Field field : fields) {
+            Log.e("SettingsInitializer", field.getName());
             initField(field);
             section.add(createPreference(field));
         }
+    }
+
+    private Set<Field> getFields(Class scan, Class<? extends Annotation> annotation) {
+        Set<Field> fields = new LinkedHashSet();
+        for (Field field : scan.getDeclaredFields()) {
+            if (field.isAnnotationPresent(annotation))
+                fields.add(field);
+        }
+        return fields;
     }
 
     private SettingsPreference createPreference(Field field) {

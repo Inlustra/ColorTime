@@ -15,22 +15,22 @@ import com.thenairn.reflectivesettings.annotation.SettingsHeader;
 /**
  * Created by Tom on 09/09/2015.
  */
-@SettingsHeader(title = "Gradient Painter", summary = "Testing summary")
+@SettingsHeader(title = "Gradient Painter", summary = "Settings")
 public class GradientPainter implements ColorPainter {
 
     private Paint paint;
 
-    @SettingsField(title = "Shift", summary = "Move the second color around the spectrum", key = "shift")
+    @SettingsField(title = "Shift", summary = "Move the second color around the spectrum", key = "gp_shift")
     private static boolean shift = true;
-    @SettingsField(title = "Shift Amount", summary = "The amount to move it around the spectrum (180 is complement)", key = "shiftAmount")
+    @SettingsField(title = "Shift Amount", summary = "The amount to move it around the spectrum (180 is complement)", key = "gp_shiftAmount")
     private static double shiftAmount = 180;
-    @SettingsField(title = "Darken", summary = "Darken the second color", key = "darken")
+    @SettingsField(title = "Darken", summary = "Darken the second color", key = "gp_darken")
     private static boolean darken = false;
-    @SettingsField(title = "Darken Amount", summary = "The amount to darken the color by (between 0 - 100)", key = "darkenAmount")
+    @SettingsField(title = "Darken Amount", summary = "The amount to darken the color by (between 0 - 100)", key = "gp_darkenAmount")
     private static double darkenAmount = 30;
-    @SettingsField(title = "Lighten", summary = "Lighten the second color", key = "lighten")
+    @SettingsField(title = "Lighten", summary = "Lighten the second color", key = "gp_lighten")
     private static boolean lighten = false;
-    @SettingsField(title = "Lighten Amount", summary = "The amount to lighten the color by (between 0 - 100)", key = "lightenAmount")
+    @SettingsField(title = "Lighten Amount", summary = "The amount to lighten the color by (between 0 - 100)", key = "gp_lightenAmount")
     private static double lightenAmount = 30;
 
 

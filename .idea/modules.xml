@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Application.iml" filepath="$PROJECT_DIR$/Application.iml" />
       <module fileurl="file://$PROJECT_DIR$/ColorTime/ColorTime.iml" filepath="$PROJECT_DIR$/ColorTime/ColorTime.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ColorTime/ColorTime-ColorTime.iml" filepath="$PROJECT_DIR$/ColorTime/ColorTime-ColorTime.iml" />
       <module fileurl="file://$PROJECT_DIR$/ReflectiveSettings/ReflectiveSettings.iml" filepath="$PROJECT_DIR$/ReflectiveSettings/ReflectiveSettings.iml" />
     </modules>
   </component>

@@ -26,6 +26,8 @@ public class ColorWallpaperService extends WallpaperService implements SharedPre
     private static PainterType painter = PainterType.Gradient;
     @SettingsField(title = "Choose Sampler", summary = "Defines how the painter gets its colors", key = "sampler")
     private static SamplerType sampler = SamplerType.HSVTimeSampler;
+    @SettingsField(title = "Repaint speed", summary = "How fast the live wallpaper updates", key = "speed")
+    private static int sampleTime = 10;
 
     @Override
     public WallpaperService.Engine onCreateEngine() {
@@ -126,7 +128,7 @@ public class ColorWallpaperService extends WallpaperService implements SharedPre
             }
 
             public void runDelayed() {
-                handler.postDelayed(this, 10);
+                handler.postDelayed(this, sampleTime);
                 registered = true;
             }
 
