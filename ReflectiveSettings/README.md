@@ -2,7 +2,9 @@
 
 ##### An annotation based Android settings fragment generator that creates 2 types of SettingsActivity
 
-I would like to start by saying that this is purely a test, to see how far we can stretch the Preference Activity, it uses a heavy reflection and likely breaks between android versions, currently tested only on Android 5.1.1
+I would like to start by saying that this is purely a test, to see how far we can stretch the Preference Activity, it uses a heavy reflection and likely breaks between android versions, currently tested only on Android 5.1.1. It's very messy and could do with some cleaning up/documentation.
+
+Once a settings is changed, the **static** field is updated to reflect the new value and the onSharedPreferenceChanged is called on the activity
 
 
 All settings are synced with SharedPreferences, example:
@@ -42,7 +44,7 @@ public class HSVTimeSampler implements ColorSampler {
   <dt><code>String key()</code></dt>
   <dd>A key used for settings the SharedPreferences</dd>
 
-  <dt><code>String title()</code>></dt>
+  <dt><code>String title()</code></dt>
   <dd>The title displayed by the SettingsPreference</dd>
   
   <dt><code>String titleId()</code></dt>
@@ -73,7 +75,7 @@ public class HSVTimeSampler implements ColorSampler {
   <dt><code>String key()</code></dt>
   <dd>A key used for settings the SharedPreferences</dd>
 
-  <dt><code>String title()</code>></dt>
+  <dt><code>String title()</code></dt>
   <dd>The title displayed by the SettingsPreference</dd>
   
   <dt><code>String titleId()</code></dt>
